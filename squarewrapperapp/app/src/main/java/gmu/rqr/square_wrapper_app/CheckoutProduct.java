@@ -2,7 +2,9 @@ package gmu.rqr.square_wrapper_app;
 
 
 import java.io.Serializable;
+//A Product that also has a weight. This could be made to be a child of Product
 
+//CheckoutProduct must implement Serializable in order for ArrayList of cart items to be passed from OrderActivity to CheckoutActivity
 public class CheckoutProduct implements Serializable {
 
     private String productName;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="gmu.rqr.square_wrapper_app">
-
+    <!--Any new activity we create needs to be added here with <activity></activity> tags. Intent-filter is used for the activity we want to open on launch-->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
