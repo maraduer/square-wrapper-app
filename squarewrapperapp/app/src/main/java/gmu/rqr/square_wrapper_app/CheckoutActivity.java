@@ -3,7 +3,10 @@ package gmu.rqr.square_wrapper_app;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ListView;
+import android.widget.TextView;
+
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class CheckoutActivity extends AppCompatActivity{
 
@@ -33,9 +36,18 @@ public class CheckoutActivity extends AppCompatActivity{
         if(checkoutProducts.size() > 0){
             //Create link to ListView defined in checkout_layout.xml
             ListView listView = (ListView) findViewById(R.id.cartList);
+            TextView textView = findViewById(R.id.fullTotal);
+            CheckoutProduct product = new CheckoutProduct();
+            double cartTotal = 0;
+            for(int i = 0; i < checkoutProducts.size(); i++){
+                product = checkoutProducts.get(i);
+                double itemTotal = product.getProductWeight() * product.getProductPrice();
+                cartTotal += itemTotal;
+            }
             //Layout for each row of ListView populated by CheckoutProductAdapter using list of items in cart
             adapter = new CheckoutProductAdapter(this, checkoutProducts);
             listView.setAdapter(adapter);
+            textView.setText(" Total: $"+String.format(Locale.ENGLISH,"%.2f", cartTotal));
         }
     }
 }
