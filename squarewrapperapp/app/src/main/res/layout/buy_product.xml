@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Product Name"
+        android:id="@+id/dialogProdName"
+        android:textColor="@color/colorPrimary"
+        android:textSize="30sp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_margin="15dp"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/dialogProdPrice"
+        android:text="Product Price"
+        android:textColor="@color/colorPrimaryDark"
+        android:textSize="20sp"
+        android:layout_below="@+id/dialogProdName"
+        android:layout_alignParentStart="true"
+        android:layout_margin="15dp"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/dialogQtyPrompt"
+        android:text="Enter quantity/weight:"
+        android:textColor="@color/colorAccent"
+        android:textSize="20sp"
+        android:layout_below="@+id/dialogProdPrice"
+        android:layout_alignParentStart="true"
+        android:layout_margin="15dp"
+        />
+
+
+    <EditText
+        android:id="@+id/dialogQty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="numberDecimal"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/dialogQtyPrompt"
+        android:layout_margin="15dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@+id/dialogQty"
+        android:gravity="end"
+        style="?android:borderlessButtonStyle">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:textColor="@color/colorPrimary"
+            android:id="@+id/buttonCancel"
+            style="?android:borderlessButtonStyle"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Confirm"
+            android:textColor="@color/colorAccent"
+            android:id="@+id/buttonSelect"
+            style="?android:borderlessButtonStyle"/>
+
+    </LinearLayout>
+
+</RelativeLayout>
