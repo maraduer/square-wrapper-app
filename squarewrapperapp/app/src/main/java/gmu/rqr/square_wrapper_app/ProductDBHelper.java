@@ -10,8 +10,13 @@ public class ProductDBHelper extends SQLiteOpenHelper {
     //Constants defined for database name and version (version # arbitrary)
     private static final String DATABASE_NAME = "RAF_products.db";
     private static final int DATABASE_VERSION = 1;
+    protected static final String TABLE_PRODUCT = "product";
+    protected static final String COL_ID = "_id";
+    protected static final String COL_NAME = "productname";
+    protected static final String COL_PRICE = "productprice";
     //Constant for creating table "product". Has 3 fields: auto ID, name, price
-    private static final String CREATE_TABLE_PRODUCT = "create table product (_id integer primary key autoincrement, productname text not null, productprice real)";
+    private static final String CREATE_TABLE_PRODUCT =
+        "create table " + TABLE_PRODUCT + "(_id integer primary key autoincrement, productname text not null, productprice real)";
 
 
 

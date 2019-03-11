@@ -7,6 +7,10 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 
+import static gmu.rqr.square_wrapper_app.ProductDBHelper.COL_ID;
+import static gmu.rqr.square_wrapper_app.ProductDBHelper.COL_NAME;
+import static gmu.rqr.square_wrapper_app.ProductDBHelper.COL_PRICE;
+import static gmu.rqr.square_wrapper_app.ProductDBHelper.TABLE_PRODUCT;
 
 //Class used to manipulate database once it has been created.
 // ***This class has insert and update methods to manipulate database. Just need to add the code to use them
@@ -44,12 +48,13 @@ public class ProductDataSource {
         try{
             //Uses ContentValues object with key,value pair to load into database
             ContentValues initialValues = new ContentValues();
-            initialValues.put("productname", np.getProductName());
-            initialValues.put("productprice", np.getProductPrice());
-            succeeded = database.insert("product", null, initialValues) > 0;
+            initialValues.put(COL_NAME, np.getProductName());
+            initialValues.put(COL_PRICE, np.getProductPrice());
+            succeeded = database.insert(TABLE_PRODUCT, null, initialValues) > 0;
         }
         catch(Exception e){
             //Something went horribly wrong
+            succeeded = false;
         }
         return succeeded;
     }
@@ -65,17 +70,30 @@ public class ProductDataSource {
             Long rowID = (long) up.getProductID();
             //Uses ContentValues object with key,value pair to update database entry at rowID
             ContentValues updateValues = new ContentValues();
-            updateValues.put("productname", up.getProductName());
-            updateValues.put("productprice", up.getProductPrice());
-            succeeded = database.update("product", updateValues, "_id="+rowID, null) > 0;
+            updateValues.put(COL_NAME, up.getProductName());
+            updateValues.put(COL_PRICE, up.getProductPrice());
+            succeeded = database.update(TABLE_PRODUCT, updateValues, COL_ID+"="+rowID, null) > 0;
         }
         catch(Exception e){
             //Something went horribly wrong
+            succeeded = false;
         }
         return succeeded;
     }
 
+    public boolean deleteProduct(Product product){
 
+        boolean succeeded = false;
+        try{
+            Long rowID = (long) product.getProductID();
+            succeeded = database.delete(TABLE_PRODUCT, COL_ID+"= ?", new String[]{rowID.toString()}) > 0;
+        }
+        catch(Exception e){
+            //Something went horribly wrong
+            succeeded = false;
+        }
+        return succeeded;
+    }
 
     //Gets all products from database
     //Input: None
@@ -83,7 +101,7 @@ public class ProductDataSource {
     public ArrayList<Product> getProducts(){
         ArrayList<Product> products = new ArrayList<Product>();
         try{
-            String query = "SELECT * FROM product ORDER BY productname ASC";
+            String query = "SELECT * FROM " + TABLE_PRODUCT + " ORDER BY " + COL_NAME + " ASC";
             //Cursor object is used to move through database
             Cursor cursor = database.rawQuery(query, null);
             Product nextProduct;
@@ -113,7 +131,7 @@ public class ProductDataSource {
     //Output: Product object
     public Product getSpecificProduct(int productID){
         Product product = new Product();
-        String query = "SELECT * FROM product WHERE _id=" + productID;
+        String query = "SELECT * FROM" + TABLE_PRODUCT + "WHERE" + COL_ID + "=" + productID;
         Cursor cursor = database.rawQuery(query, null);
         if(cursor.moveToFirst()){
             product.setProductID(cursor.getInt(0));
@@ -123,4 +141,6 @@ public class ProductDataSource {
         }
         return product;
     }
+
+
 }
