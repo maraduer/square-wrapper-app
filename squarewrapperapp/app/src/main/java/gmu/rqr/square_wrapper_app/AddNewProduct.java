@@ -49,8 +49,14 @@ public class AddNewProduct extends DialogFragment {
             public void onClick(View v) {
                 //Get value entered into EditText and pass to saveItem method below
                 String prodName = name.getText().toString();
-                double prodPrice = Double.parseDouble(price.getText().toString());
-                saveItem(prodName, prodPrice);
+                if(!price.getText().toString().equals("") && !prodName.equals("")){
+                    double prodPrice = Double.parseDouble(price.getText().toString());
+                    saveItem(prodName, prodPrice);
+                }
+                else{
+                    saveItem("",0.0);
+                }
+
             }
         });
 

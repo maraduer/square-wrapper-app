@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 //Inherits from DialogFragment class (used for things you want as a pop-up/overlay)
 public class BuyDialog extends DialogFragment {
@@ -69,8 +70,13 @@ public class BuyDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 //Get value entered into EditText and pass to saveItem method below
-                double prodQnty = Double.parseDouble(qnty.getText().toString());
-                saveItem(prodQnty);
+                if(!qnty.getText().toString().equals("")){
+                    double prodQnty = Double.parseDouble(qnty.getText().toString());
+                    saveItem(prodQnty);
+                }
+                else{
+                    saveItem(0.0);
+                }
             }
         });
 
@@ -89,7 +95,7 @@ public class BuyDialog extends DialogFragment {
 
 
     //Used to save quantity/weight to OrderActivity
-    private void saveItem(double prodQnty){
+    private void saveItem(Double prodQnty){
         //Uses interface created above
         SaveQuantityListener activity = (SaveQuantityListener) getActivity();
         //Call to method in OrderActivity

@@ -38,6 +38,7 @@ public class OrderActivity  extends AppCompatActivity implements BuyDialog.SaveQ
         initListItemClick();
         initAddNewProductButton();
         initCartButton();
+        initChartButton();
 
         //Temporary way to load database
         Product p1 = new Product("Sausage", 2.99);
@@ -67,15 +68,6 @@ public class OrderActivity  extends AppCompatActivity implements BuyDialog.SaveQ
             Toast.makeText(this, "Error loading products", Toast.LENGTH_SHORT).show();
         }
     }
-
-    /**
-     * Method to progrmattically add an item to the db
-     * Product newProduct = new Product(name, price);
-     * ds.open();
-     * ds.insertProduct(newProduct);
-     * ds.close();
-     */
-
 
     private void loadItems() {
 //        ds = new ProductDataSource(this);
@@ -117,7 +109,7 @@ public class OrderActivity  extends AppCompatActivity implements BuyDialog.SaveQ
         AlertDialog myQuittingDialogBox =new AlertDialog.Builder(this)
                 //set message, title, and icon
                 .setTitle("Delete")
-                .setMessage("Do you want to Delete")
+                .setMessage("Do you want to delete?")
                 // .setIcon(R.drawable.delete)
                 .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
 
@@ -131,7 +123,7 @@ public class OrderActivity  extends AppCompatActivity implements BuyDialog.SaveQ
                     }
 
                 })
-                .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
 
                         dialog.dismiss();
@@ -149,8 +141,8 @@ public class OrderActivity  extends AppCompatActivity implements BuyDialog.SaveQ
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Product selectedProdut = products.get(position);
-                AlertDialog alert = AskOption(selectedProdut);
+                Product selectedProduct = products.get(position);
+                AlertDialog alert = AskOption(selectedProduct);
                 alert.show();
                 return true;
             }
@@ -182,21 +174,31 @@ public class OrderActivity  extends AppCompatActivity implements BuyDialog.SaveQ
     public void finishedBuyDialog(String productName, double productPrice, double productQnty){
         //Initialize and set name, price, and quantity/weight
         currentProduct = new CheckoutProduct();
-        currentProduct.setProductName(productName);
-        currentProduct.setProductPrice(productPrice);
-        currentProduct.setProductWeight(productQnty);
-        //Add to cart list
-        checkoutProducts.add(currentProduct);
-        //Confirm correct product was added
-        Toast.makeText(this, "Added " + productName + " to cart", Toast.LENGTH_SHORT).show();
+        if(productQnty == 0){
+            Toast.makeText(this, "Couldn't add to cart due to invalid quantity", Toast.LENGTH_LONG).show();
+        }
+        else {
+            currentProduct.setProductName(productName);
+            currentProduct.setProductPrice(productPrice);
+            currentProduct.setProductWeight(productQnty);
+            //Add to cart list
+            checkoutProducts.add(currentProduct);
+            //Confirm correct product was added
+            Toast.makeText(this, "Added " + productName + " to cart", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     public void finishedAddProductListener(String productName, double productPrice) {
-        Product newProduct = new Product(productName, productPrice);
-        ds.open();
-        ds.insertProduct(newProduct);
-        ds.close();
+        if(productName.equals("") || productPrice== 0){
+            Toast.makeText(this, "Couldn't add to database due to invalid name/price", Toast.LENGTH_LONG).show();
+        }
+        else {
+            Product newProduct = new Product(productName, productPrice);
+            ds.open();
+            ds.insertProduct(newProduct);
+            ds.close();
+        }
         loadItems();
     }
 
@@ -240,4 +242,17 @@ public class OrderActivity  extends AppCompatActivity implements BuyDialog.SaveQ
             }
         });
     }
+
+    private void  initChartButton(){
+        Button chartButton = (Button) findViewById(R.id.chartBtn);
+        chartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(OrderActivity.this, GraphActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+        });
+    }
+
 }
