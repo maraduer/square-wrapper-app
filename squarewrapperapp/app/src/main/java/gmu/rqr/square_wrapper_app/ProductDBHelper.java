@@ -16,9 +16,19 @@ public class ProductDBHelper extends SQLiteOpenHelper {
     protected static final String COL_PRICE = "productprice";
     //Constant for creating table "product". Has 3 fields: auto ID, name, price
     private static final String CREATE_TABLE_PRODUCT =
-        "create table " + TABLE_PRODUCT + "(_id integer primary key autoincrement, productname text not null, productprice real)";
+            "create table " + TABLE_PRODUCT + "(_id integer primary key autoincrement, productname text not null, productprice real)";
 
 
+    //constants defined for new table to hold transaction data
+    protected static final String TABLE_TRANSACTION = "transaction_table";
+    protected static final String QUANTITY = "quantity";
+    protected static final String PRICE = "price";
+    protected static final String DATE_TIME_STAMP = "time_stamp";
+    // constant for creating table "table_transaction". Has 4 fields including the foreign key
+    private static final String CREATE_TABLE_TRANSACTION =
+            "create table " + TABLE_TRANSACTION + " (" +
+                    COL_ID + "integer, " + QUANTITY + "integer, " + PRICE + "real, "
+                    + DATE_TIME_STAMP + " long)";
 
     //Create database
     public ProductDBHelper(Context context){
@@ -29,9 +39,13 @@ public class ProductDBHelper extends SQLiteOpenHelper {
 
     //Create table
     @Override
-    public void onCreate(SQLiteDatabase db){
+    public void onCreate(SQLiteDatabase db)
+    {
         db.execSQL(CREATE_TABLE_PRODUCT);
+        db.execSQL(CREATE_TABLE_TRANSACTION);
     }
+
+
 
 
 
