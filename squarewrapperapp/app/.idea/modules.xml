@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/libs/MPChartLib/MPChartLib.iml" filepath="$PROJECT_DIR$/.idea/modules/libs/MPChartLib/MPChartLib.iml" group="MPChartLib" />
+      <module fileurl="file://$PROJECT_DIR$/app.iml" filepath="$PROJECT_DIR$/app.iml" group="app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-1067815244/squarewrapperapp.iml" filepath="$PROJECT_DIR$/.idea/modules/-1067815244/squarewrapperapp.iml" />
+    </modules>
+  </component>
+</project>

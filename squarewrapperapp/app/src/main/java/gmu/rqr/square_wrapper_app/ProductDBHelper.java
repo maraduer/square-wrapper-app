@@ -9,15 +9,26 @@ import android.util.Log;
 public class ProductDBHelper extends SQLiteOpenHelper {
     //Constants defined for database name and version (version # arbitrary)
     private static final String DATABASE_NAME = "RAF_products.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 5;
+
     protected static final String TABLE_PRODUCT = "product";
     protected static final String COL_ID = "_id";
     protected static final String COL_NAME = "productname";
+    protected static final String COL_CATEGORY = "productcategory";
     protected static final String COL_PRICE = "productprice";
-    //Constant for creating table "product". Has 3 fields: auto ID, name, price
-    private static final String CREATE_TABLE_PRODUCT =
-        "create table " + TABLE_PRODUCT + "(_id integer primary key autoincrement, productname text not null, productprice real)";
+    //Constant for creating table "product". Has 4 fields: auto ID, name, category, price
+    private static final String CREATE_TABLE_PRODUCT = "create table " + TABLE_PRODUCT + "(_id integer primary key autoincrement, productname text not null, productcategory text, productprice real)";
 
+
+    //constants defined for new table to hold transaction data
+    protected static final String TABLE_TRANSACTION = "transaction_table";
+    protected static final String TRANS_ID = "_tid";
+    protected static final String PROD_ID = "product_id";
+    protected static final String QUANTITY = "quantity";
+    protected static final String PRICE = "price";
+    protected static final String DATE_TIME_STAMP = "time_stamp";
+    // constant for creating table "table_transaction". Has 4 fields including the foreign key
+    private static final String CREATE_TABLE_TRANSACTION = "create table " + TABLE_TRANSACTION + " (" + TRANS_ID + " integer primary key autoincrement, " + PROD_ID + " integer, " + QUANTITY + " real, " + PRICE + " real, "+ DATE_TIME_STAMP + " datetime default CURRENT_TIMESTAMP, FOREIGN KEY (product_id) REFERENCES product(_id))";
 
 
     //Create database
@@ -31,7 +42,9 @@ public class ProductDBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db){
         db.execSQL(CREATE_TABLE_PRODUCT);
+        db.execSQL(CREATE_TABLE_TRANSACTION);
     }
+
 
 
 
@@ -40,6 +53,7 @@ public class ProductDBHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.w(ProductDBHelper.class.getName(), "Upgrading database from version " + oldVersion + "to " + newVersion + ", which will destroy all old data");
         db.execSQL("DROP TABLE IF EXISTS product");
+        db.execSQL("DROP TABLE IF EXISTS transaction_table");
         onCreate(db);
     }
 }

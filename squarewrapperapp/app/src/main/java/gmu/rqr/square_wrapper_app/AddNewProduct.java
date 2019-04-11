@@ -5,12 +5,16 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
-public class AddNewProduct extends DialogFragment {
+public class AddNewProduct extends DialogFragment implements AdapterView.OnItemSelectedListener {
     String prodName;
+    String prodCategory;
     double prodPrice;
 
 
@@ -26,7 +30,7 @@ public class AddNewProduct extends DialogFragment {
     //Interface that is used so that we can save results of BuyDialog in OrderActivity when dialog is closed. Called by saveItem method below.
     public interface SaveProductListener{
         //Calls finishedBuyDialog method in OrderActivity
-        void finishedAddProductListener(String prodName, double prodPrice);
+        void finishedAddProductListener(String prodName, String prodCategory, double prodPrice);
     }
 
 
@@ -42,6 +46,13 @@ public class AddNewProduct extends DialogFragment {
         final EditText name = (EditText) view.findViewById(R.id.productNameInput);
         final EditText price = (EditText) view.findViewById(R.id.productPriceInput);
 
+        //Select product category spinner
+        final Spinner categorySpin = (Spinner) view.findViewById(R.id.prodCategory);
+        String[] categories = {"Poultry", "Pork", "Beef", "Other"};
+        categorySpin.setOnItemSelectedListener(this);
+        ArrayAdapter aa = new ArrayAdapter(getActivity(), android.R.layout.simple_spinner_dropdown_item, categories);
+        categorySpin.setAdapter(aa);
+
         //Save button created and activated
         Button saveBtn = (Button) view.findViewById(R.id.saveButton);
         saveBtn.setOnClickListener(new View.OnClickListener(){
@@ -51,10 +62,12 @@ public class AddNewProduct extends DialogFragment {
                 String prodName = name.getText().toString();
                 if(!price.getText().toString().equals("") && !prodName.equals("")){
                     double prodPrice = Double.parseDouble(price.getText().toString());
-                    saveItem(prodName, prodPrice);
+                    String prodCategory = categorySpin.getSelectedItem().toString();
+                    saveItem(prodName, prodCategory, prodPrice);
+
                 }
                 else{
-                    saveItem("",0.0);
+                    saveItem("", "", 0.0);
                 }
 
             }
@@ -73,13 +86,24 @@ public class AddNewProduct extends DialogFragment {
     }
 
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+
 
     //Used to save quantity/weight to OrderActivity
-    private void saveItem(String prodName, double prodPrice){
+    private void saveItem(String prodName, String prodCategory, double prodPrice){
         //Uses interface created above
         AddNewProduct.SaveProductListener activity = (AddNewProduct.SaveProductListener) getActivity();
         //Call to method in OrderActivity
-        activity.finishedAddProductListener(prodName, prodPrice);
+        activity.finishedAddProductListener(prodName, prodCategory, prodPrice);
         //Close dialog
         getDialog().dismiss();
     }

@@ -6,8 +6,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -17,6 +19,7 @@ public class CheckoutActivity extends AppCompatActivity {
     //Used to hold cart items
     private ArrayList<CheckoutProduct> checkoutProducts = new ArrayList<>();
     CheckoutProductAdapter adapter;
+    private ProductDataSource ds;
 
 
     //Runs when activity is first started
@@ -28,6 +31,9 @@ public class CheckoutActivity extends AppCompatActivity {
         //Gets ArrayList of cart items that were passed as Extras from OrderActivity. CheckoutProduct must implement Serializable in order for this to work.
         checkoutProducts = (ArrayList<CheckoutProduct>) getIntent().getSerializableExtra("checkoutproducts");
         //initListItemLongClick();
+        initSquareCheckoutBtn();
+        ds = new ProductDataSource(this);
+
     }
 
 
@@ -54,6 +60,19 @@ public class CheckoutActivity extends AppCompatActivity {
         }
     }
 
+
+    private void initSquareCheckoutBtn(){
+        Button squareBtn = (Button) findViewById(R.id.squareCheckout);
+        squareBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ds.open();
+                ds.logTransaction(checkoutProducts);
+                ds.close();
+                Toast.makeText(CheckoutActivity.this,"Transaction logged", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     // ***Deleting from cart currently doesn't work because of how cart items are passed between activities***
 

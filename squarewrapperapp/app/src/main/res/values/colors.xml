@@ -5,4 +5,8 @@
     <color name="colorAccent">#D81B60</color>
     <color name="system_transparent">#00000000</color>
     <color name="system_gray">#666666</color>
+    <color name="graph_red">#d91111</color>
+    <color name="graph_yellow">#f5cb25</color>
+    <color name="graph_blue">#20a2e8</color>
+    <color name="graph_green">#19d128</color>
 </resources>

@@ -40,12 +40,6 @@ public class OrderActivity  extends AppCompatActivity implements BuyDialog.SaveQ
         initCartButton();
         initChartButton();
 
-        //Temporary way to load database
-        Product p1 = new Product("Sausage", 2.99);
-        Product p2 = new Product("Bacon", 1.99);
-        Product p3 = new Product("Chicken", 4.99);
-        Product p4 = new Product("Canadian Bacon", 2.99);
-        Product p5 = new Product("Tenderloin", 3.49);
 
         //Initialize DataSource used to access DB
         ds = new ProductDataSource(this);
@@ -54,13 +48,6 @@ public class OrderActivity  extends AppCompatActivity implements BuyDialog.SaveQ
             //ds.open();
             //Product toDelete = ds.getProducts().get(0);
             //ds.deleteProduct(toDelete);
-            //Comment out to stop adding products
-           // ds.insertProduct(p1);
-            //ds.insertProduct(p2);
-            //ds.insertProduct(p3);
-            //ds.insertProduct(p4);
-            //ds.insertProduct(p5);
-            //^^^^
             ds.close();
         }
         catch(Exception e)
@@ -70,25 +57,17 @@ public class OrderActivity  extends AppCompatActivity implements BuyDialog.SaveQ
     }
 
     private void loadItems() {
-//        ds = new ProductDataSource(this);
-//        if (ds == null) {
-//            ds = new ProductDataSource(this);
-//        }
         try{
             ds.open();
             //Returns ArrayList<Product> from database
             products = ds.getProducts();
             ds.close();
-            if(products.size() > 0){
-                //Populate ListView from order_layout.xml with list of products
-                ListView listView = (ListView) findViewById(R.id.orderList);
-                //Uses ProductAdapter to create each row
-                adapter = new ProductAdapter(this, products);
-                listView.setAdapter(adapter);
-            }
-            else{
-                //Can add default behavior here if database is empty
-            }
+            ListView listView = (ListView) findViewById(R.id.orderList);
+            //Uses ProductAdapter to create each row
+            adapter = new ProductAdapter(this, products);
+            listView.setAdapter(adapter);
+            //Only displays when ListView is empty
+            listView.setEmptyView(findViewById(R.id.emptyListDisp));
         }
         catch(Exception e)
         {
@@ -189,12 +168,12 @@ public class OrderActivity  extends AppCompatActivity implements BuyDialog.SaveQ
     }
 
     @Override
-    public void finishedAddProductListener(String productName, double productPrice) {
+    public void finishedAddProductListener(String productName, String prodCategory, double productPrice) {
         if(productName.equals("") || productPrice== 0){
             Toast.makeText(this, "Couldn't add to database due to invalid name/price", Toast.LENGTH_LONG).show();
         }
         else {
-            Product newProduct = new Product(productName, productPrice);
+            Product newProduct = new Product(productName, prodCategory, productPrice);
             ds.open();
             ds.insertProduct(newProduct);
             ds.close();
@@ -219,7 +198,7 @@ public class OrderActivity  extends AppCompatActivity implements BuyDialog.SaveQ
                     //Intent is used to transition from OrderActivity to CheckoutActivity
                     Intent intent = new Intent(OrderActivity.this, CheckoutActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    //Cart items are passed as Extras with Intent object uaing key,value pair
+                    //Cart items are passed as Extras with Intent object using key,value pair
                     intent.putExtra("checkoutproducts", checkoutProducts);
                     //Load CheckoutActivity
                     startActivity(intent);
