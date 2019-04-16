@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="gmu.rqr.square_wrapper_app">
+    <!-- This is needed to scan QR codes, not a requirement for Reader SDK. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+
+    <uses-feature android:name="android.hardware.camera"/>
+    <uses-feature android:name="android.hardware.camera.autofocus"/>
+
     <!--Any new activity we create needs to be added here with <activity></activity> tags. Intent-filter is used for the activity we want to open on launch-->
     <application
         android:allowBackup="true"
+        android:name=".SquareApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -16,6 +23,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".StartAuthorizeActivity"
+            android:theme="@style/JewelTheme"/>
+
+        <activity android:name=".ManualCodeEntryActivity"/>
+
+        <activity android:name=".AuthorizingActivity"/>
+
+        <activity android:name=".ScanQRCodeActivity"/>
 
     </application>
 
