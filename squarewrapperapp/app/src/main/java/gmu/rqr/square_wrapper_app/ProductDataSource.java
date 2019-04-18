@@ -22,6 +22,7 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -262,7 +263,7 @@ public class ProductDataSource{
                     String query = "SELECT SUM(" + PRICE + ") FROM " + TABLE_TRANSACTION + " JOIN " + TABLE_PRODUCT + " ON " + COL_ID + " = " + PROD_ID + " WHERE " + COL_CATEGORY + " = " + "'" + category + "' AND " + DATE_TIME_STAMP + " BETWEEN datetime('now', '-" + (index) + " Day') AND datetime('now','-" + (index - 1) + " Day')";
                     Cursor cursor = database.rawQuery(query, null);
                     cursor.moveToFirst();
-                    chartData.add(new Entry((float) i, cursor.getFloat(0)));
+                    chartData.add(new Entry((float) i-1, cursor.getFloat(0)));
                 } catch (Exception e) {
                     //Error case
                 }
@@ -274,6 +275,35 @@ public class ProductDataSource{
             colorIndex++;
         }
         return dataSets;
+    }
+
+    public List<String> getDates(Context context, int numberOfDays){
+        List<String> sqlDates = new ArrayList<>();
+        Integer index = numberOfDays;
+
+        try {
+//            Sql not receiving correct dates from db that match the number of entries from getCategoryLineChartData
+
+//            String query = "SELECT " + DATE_TIME_STAMP + " FROM " + TABLE_TRANSACTION + " WHERE " + DATE_TIME_STAMP + " BETWEEN datetime('now') AND datetime('now','-" + (numberOfDays - 1) + " days')";
+//            Log.d("Check", "Query is " + query);
+//            Cursor cursor = database.rawQuery(query, null);
+//            while(cursor.moveToNext()) {
+//                String date = cursor.getString(0);
+//                sqlDates.add(date);
+//            }
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+            Calendar cal = Calendar.getInstance();
+            for(int i = 0; i < index; i++){
+                cal.add(Calendar.DATE, -i);
+                Date date = cal.getTime();
+                sqlDates.add(dateFormat.format(date));
+            }
+
+        } catch (Exception e) {
+            //Error case
+        }
+
+        return sqlDates;
     }
 
 
