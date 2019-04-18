@@ -185,6 +185,7 @@ public class OrderActivity  extends AppCompatActivity implements BuyDialog.SaveQ
         currentProduct.setProductName(productName);
         currentProduct.setProductPrice(productPrice);
         currentProduct.setProductWeight(productQnty);
+        currentProduct.setTotalPrice(productQnty * productPrice);
         //Add to cart list
         checkoutProducts.add(currentProduct);
         //Confirm correct product was added

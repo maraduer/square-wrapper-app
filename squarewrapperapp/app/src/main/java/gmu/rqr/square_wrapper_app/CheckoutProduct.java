@@ -10,6 +10,7 @@ public class CheckoutProduct implements Serializable {
     private String productName;
     private double productPrice;
     private double productWeight;
+    private double totalPrice;
 
 
     public double getProductWeight() {
@@ -35,5 +36,9 @@ public class CheckoutProduct implements Serializable {
     public void setProductPrice(double productPrice) {
         this.productPrice = productPrice;
     }
+
+    public double getTotalPrice() { return totalPrice; }
+
+    public void setTotalPrice(double totalPrice) { this.totalPrice = totalPrice; }
 
 }
