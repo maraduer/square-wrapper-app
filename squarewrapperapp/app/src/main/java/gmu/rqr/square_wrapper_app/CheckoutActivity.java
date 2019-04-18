@@ -1,16 +1,20 @@
 package gmu.rqr.square_wrapper_app;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import com.squareup.sdk.reader.ReaderSdk;
 import com.squareup.sdk.reader.authorization.AuthorizationManager;
@@ -47,31 +51,9 @@ public class CheckoutActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         //Uses checkout_layout.xml for layout and widgets
         setContentView(R.layout.checkout_layout);
+        initListItemLongClick();
         //Gets ArrayList of cart items that were passed as Extras from OrderActivity. CheckoutProduct must implement Serializable in order for this to work.
         checkoutProducts = (ArrayList<CheckoutProduct>) getIntent().getSerializableExtra("checkoutproducts");
-
-        CheckoutManager checkoutManager = ReaderSdk.checkoutManager();
-        checkoutCallbackRef = checkoutManager.addCheckoutActivityCallback(this::onCheckoutResult);
-
-        ReaderManager readerManager = ReaderSdk.readerManager();
-        readerSettingsCallbackRef =
-                readerManager.addReaderSettingsActivityCallback(this::onReaderSettingsResult);
-
-        AuthorizationManager authorizationManager = ReaderSdk.authorizationManager();
-        deauthorizeCallbackRef = authorizationManager.addDeauthorizeCallback(this::onDeauthorizeResult);
-
-        if (!authorizationManager.getAuthorizationState().isAuthorized()) {
-            goToAuthorizeActivity();
-        } else {
-            // 100 is the amount of money in the smallest denomination of the specified currency.
-            // For example, when the currency is USD, the amount here is 100 cents, i.e. 1 US Dollar.
-            // TODO: replace with transaction total
-            Money checkoutAmount = new Money(200, CurrencyCode.current());
-
-            TextView startCheckoutButton = findViewById(R.id.start_checkout_button);
-            startCheckoutButton.setOnClickListener(view -> startCheckout(checkoutAmount));
-            startCheckoutButton.setText(getString(R.string.start_checkout, checkoutAmount.format()));
-        }
     }
 
     private void onCheckoutResult(Result<CheckoutResult, ResultError<CheckoutErrorCode>> result) {
@@ -79,7 +61,13 @@ public class CheckoutActivity extends AppCompatActivity{
             CheckoutResult checkoutResult = result.getSuccessValue();
             String totalAmount = checkoutResult.getTotalMoney().format();
             showDialog(getString(R.string.checkout_success_dialog_title, totalAmount),
-                    getString(R.string.checkout_success_dialog_message));
+                    getString(R.string.checkout_success_dialog_message),
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // TODO: store successfully purchased items in transaction DB for reporting
+                            goToOrderActivity();
+                        }
+                    });
             Log.d(TAG, "\n" + checkoutResult.toString() + "\n");
         } else {
             ResultError<CheckoutErrorCode> error = result.getError();
@@ -130,19 +118,98 @@ public class CheckoutActivity extends AppCompatActivity{
         finish();
     }
 
-    //Runs when activity is started or resumed. Building ListView is done in this method in order to refresh the view if it is changed
-    @Override
-    protected void onResume(){
-        super.onResume();
-        //There should always be something in cart by this point anyway
+    private void goToOrderActivity() {
+        Intent intent = new Intent(this, OrderActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private void loadCartList() {
         if(checkoutProducts.size() > 0){
             //Create link to ListView defined in checkout_layout.xml
             ListView listView = (ListView) findViewById(R.id.cartList);
             //Layout for each row of ListView populated by CheckoutProductAdapter using list of items in cart
             adapter = new CheckoutProductAdapter(this, checkoutProducts);
             listView.setAdapter(adapter);
+
+            double totalPrice = 0.0;
+            for (int i = 0; i < checkoutProducts.size(); i++) {
+                totalPrice += checkoutProducts.get(i).getTotalPrice();
+            }CheckoutManager checkoutManager = ReaderSdk.checkoutManager();
+            checkoutCallbackRef = checkoutManager.addCheckoutActivityCallback(this::onCheckoutResult);
+
+            ReaderManager readerManager = ReaderSdk.readerManager();
+            readerSettingsCallbackRef =
+                    readerManager.addReaderSettingsActivityCallback(this::onReaderSettingsResult);
+
+            AuthorizationManager authorizationManager = ReaderSdk.authorizationManager();
+            deauthorizeCallbackRef = authorizationManager.addDeauthorizeCallback(this::onDeauthorizeResult);
+
+            if (!authorizationManager.getAuthorizationState().isAuthorized()) {
+                goToAuthorizeActivity();
+            } else {
+                // 100 is the amount of money in the smallest denomination of the specified currency.
+                // For example, when the currency is USD, the amount here is 100 cents, i.e. 1 US Dollar
+                int checkoutPrice = (int) Math.ceil(totalPrice * 100);
+                Money checkoutAmount = new Money(checkoutPrice, CurrencyCode.current());
+
+                TextView startCheckoutButton = findViewById(R.id.start_checkout_button);
+                startCheckoutButton.setOnClickListener(view -> startCheckout(checkoutAmount));
+                startCheckoutButton.setText(getString(R.string.start_checkout, checkoutAmount.format()));
+            }
+        } else {
+            goToOrderActivity();
         }
+    }
+
+    //Runs when activity is started or resumed. Building ListView is done in this method in order to refresh the view if it is changed
+    @Override
+    protected void onResume(){
+        super.onResume();
+        //There should always be something in cart by this point anyway
+        loadCartList();
         waitingForActivityStart = false;
+    }
+
+    private void initListItemLongClick() {
+        ListView listView = (ListView) findViewById(R.id.cartList);
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                AlertDialog alert = removeProduct(position);
+                alert.show();
+                return true;
+            }
+        });
+    }
+
+    private AlertDialog removeProduct(final int toDelete)
+    {
+        AlertDialog myQuittingDialogBox =new AlertDialog.Builder(this)
+                //set message, title, and icon
+                .setTitle("Delete")
+                .setMessage("Do you want to Delete")
+                // .setIcon(R.drawable.delete)
+                .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //your deleting code
+                        checkoutProducts.remove(toDelete);
+                        loadCartList();
+                        dialog.dismiss();
+                    }
+
+                })
+                .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        dialog.dismiss();
+
+                    }
+                })
+                .create();
+        return myQuittingDialogBox;
+
     }
 
     @Override protected void onDestroy() {
@@ -170,14 +237,14 @@ public class CheckoutActivity extends AppCompatActivity{
             dialogMessage += "\n\nDebug Message: " + error.getDebugMessage();
             Log.d(TAG, error.getCode() + ": " + error.getDebugCode() + ", " + error.getDebugMessage());
         }
-        showDialog(getString(R.string.error_dialog_title), dialogMessage);
+        showDialog(getString(R.string.error_dialog_title), dialogMessage, null);
     }
 
-    private void showDialog(CharSequence title, CharSequence message) {
+    private void showDialog(CharSequence title, CharSequence message, DialogInterface.OnClickListener callback) {
         new AlertDialog.Builder(this)
                 .setTitle(title)
                 .setMessage(message)
-                .setPositiveButton(R.string.ok_button, null)
+                .setPositiveButton(R.string.ok_button, callback)
                 .show();
     }
 }
