@@ -48,7 +48,7 @@ public class CheckoutProductAdapter extends ArrayAdapter{
             productPrice.setText("$"+String.valueOf(product.getProductPrice()));
             productQnty.setText(String.valueOf(product.getProductWeight())+"lb");
             //Total cost rounded to two decimal places.
-            productTotal.setText("$"+String.format(Locale.ENGLISH,"%.2f", product.getProductWeight() * product.getProductPrice()));
+            productTotal.setText("$"+String.format(Locale.ENGLISH,"%.2f", product.getTotalPrice()));
         }
         catch(Exception e){
             //I'm sure this does something important
