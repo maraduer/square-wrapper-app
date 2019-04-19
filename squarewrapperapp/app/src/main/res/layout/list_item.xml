@@ -11,6 +11,7 @@
         android:text="Name"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:textColor="@color/colorPrimaryDark"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginStart="10dp"
@@ -23,15 +24,20 @@
         android:layout_alignParentEnd="true"
         android:text="Price"
         android:textSize="15sp"
+        android:textStyle="bold"
+        android:textColor="@color/colorAccent"
         android:layout_marginTop="15dp"
         android:layout_marginEnd="10dp"/>
 
-    <!--<Button-->
-        <!--android:id="@+id/prodBtn"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_alignParentEnd="true"-->
-        <!--android:text="Buy"-->
-        <!--android:background="@color/system_transparent"-->
-        <!--android:textColor="@color/colorPrimary"/>-->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Category"
+        android:id="@+id/prodCategory"
+        android:layout_toLeftOf="@id/prodPrice"
+        android:layout_toRightOf="@id/prodName"
+        android:textSize="15sp"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="10dp"
+        android:gravity="end"/>
 </RelativeLayout>

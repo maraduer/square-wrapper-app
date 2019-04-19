@@ -42,6 +42,7 @@ public class CheckoutActivity extends AppCompatActivity{
     private CallbackReference checkoutCallbackRef;
     private CallbackReference readerSettingsCallbackRef;
     private boolean waitingForActivityStart = false;
+    private ProductDataSource ds;
 
 
 
@@ -54,6 +55,7 @@ public class CheckoutActivity extends AppCompatActivity{
         initListItemLongClick();
         //Gets ArrayList of cart items that were passed as Extras from OrderActivity. CheckoutProduct must implement Serializable in order for this to work.
         checkoutProducts = (ArrayList<CheckoutProduct>) getIntent().getSerializableExtra("checkoutproducts");
+        ds = new ProductDataSource(this);
     }
 
     private void onCheckoutResult(Result<CheckoutResult, ResultError<CheckoutErrorCode>> result) {
@@ -65,6 +67,9 @@ public class CheckoutActivity extends AppCompatActivity{
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             // TODO: store successfully purchased items in transaction DB for reporting
+                            ds.open();
+                            ds.logTransaction(checkoutProducts);
+                            ds.close();
                             goToOrderActivity();
                         }
                     });

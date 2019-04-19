@@ -3,6 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Currently no products to display"
+        android:id="@+id/emptyListDisp"
+        android:layout_centerInParent="true"/>
 
     <ListView
         android:id="@+id/orderList"
@@ -37,6 +43,16 @@
             android:layout_centerVertical="true"
             android:layout_marginEnd="20dp"
             android:text="ADD NEW PRODUCT" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Charts"
+            android:id="@+id/chartBtn"
+            android:layout_toRightOf="@+id/addBtn"
+            />
+
+
 
 
 

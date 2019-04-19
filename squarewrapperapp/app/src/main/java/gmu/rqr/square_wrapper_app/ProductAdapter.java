@@ -38,9 +38,11 @@ public class ProductAdapter extends ArrayAdapter {
             //Initialize TextViews to display name and price for each product
             TextView productName = (TextView) v.findViewById(R.id.prodName);
             TextView productPrice = (TextView) v.findViewById(R.id.prodPrice);
+            TextView productCategory = (TextView) v.findViewById(R.id.prodCategory);
             //Set the name and price to display in TextView
             productName.setText(product.getProductName());
             productPrice.setText(String.valueOf(product.getProductPrice()));
+            productCategory.setText(product.getProductCategory());
         }
         catch(Exception e){
             e.printStackTrace();

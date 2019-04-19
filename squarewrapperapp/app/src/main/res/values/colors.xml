@@ -18,4 +18,8 @@
     <color name="dark_blue_50p">#803A71B0</color>
     <color name="grey">#757575</color>
     <color name="red">#FF3B30</color>
+    <color name="graph_red">#d91111</color>
+    <color name="graph_yellow">#f5cb25</color>
+    <color name="graph_blue">#20a2e8</color>
+    <color name="graph_green">#19d128</color>
 </resources>

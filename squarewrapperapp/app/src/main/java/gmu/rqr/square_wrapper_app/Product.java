@@ -6,10 +6,12 @@ public class Product {
     //ID is created by database.
     private int productID;
     private String productName;
+    private String productCategory;
     private double productPrice;
 
-    public Product(String productName, double productPrice) {
+    public Product(String productName, String productCategory, double productPrice) {
         this.productName = productName;
+        this.productCategory = productCategory;
         this.productPrice = productPrice;
     }
 
@@ -41,5 +43,13 @@ public class Product {
 
     public void setProductID(int productID) {
         this.productID = productID;
+    }
+
+    public String getProductCategory() {
+        return productCategory;
+    }
+
+    public void setProductCategory(String productCategory) {
+        this.productCategory = productCategory;
     }
 }
