@@ -44,7 +44,12 @@ public class GraphActivity extends AppCompatActivity {
         ds = new ProductDataSource(this);
         initPieChart();
         //initBarChart();
-        initLineChart(7);
+
+        int revenueLineID = R.id.lineChartRevenue;
+        int quantityLineID = R.id.lineChartQuantity;
+        initLineChart(7, true, revenueLineID);
+        initLineChart(7, false, quantityLineID);
+
 
         mDBHlpr = new ProductDBHelper(this);
         //mResults = new String[256];
@@ -90,19 +95,23 @@ public class GraphActivity extends AppCompatActivity {
 //    }
 
 
-    private void initLineChart(int numberOfDays){
+    private void initLineChart(int numberOfDays, boolean isProfit, int viewID){
 
-        LineChart lineChart = (LineChart) findViewById(R.id.lineChart);
+        LineChart lineChart = (LineChart) findViewById(viewID);
         context = getApplicationContext();
         ds.open();
-        LineData lineData = new LineData(ds.getCategoryLineChartData(context, numberOfDays));
+        LineData lineData = new LineData(ds.getCategoryLineChartData(context, numberOfDays, isProfit));
         ds.close();
         lineChart.setData(lineData);
         lineChart.animateY(1000);
 
         // add description of chart
         Description description = new Description();
-        description.setText("Product");
+        if(isProfit){
+            description.setText("Revenue");
+        }else{
+            description.setText("Quantity");
+        }
         description.setTextColor(Color.BLUE);
         description.setTextSize(20);
         lineChart.setDescription(description);

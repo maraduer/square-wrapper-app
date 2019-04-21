@@ -31,7 +31,14 @@
         <com.github.mikephil.charting.charts.LineChart
             android:layout_width="match_parent"
             android:layout_height="600dp"
-            android:id="@+id/lineChart">
+            android:id="@+id/lineChartRevenue">
+
+        </com.github.mikephil.charting.charts.LineChart>
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:layout_width="match_parent"
+            android:layout_height="600dp"
+            android:id="@+id/lineChartQuantity">
 
         </com.github.mikephil.charting.charts.LineChart>
 

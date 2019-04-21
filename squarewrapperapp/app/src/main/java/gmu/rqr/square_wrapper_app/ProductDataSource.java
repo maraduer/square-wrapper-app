@@ -250,17 +250,22 @@ public class ProductDataSource{
 //    }
 
 
-    public List<ILineDataSet> getCategoryLineChartData(Context context, int numberOfDays){
+    public List<ILineDataSet> getCategoryLineChartData(Context context, int numberOfDays, boolean isProfit){
         List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
         String[] categories = {"Poultry", "Pork", "Beef", "Other"};
         int[] graph_colors = new int[] {R.color.graph_red, R.color.graph_blue, R.color.graph_yellow, R.color.graph_green};
         int colorIndex = 0;
+        String query = "";
         for(String category : categories) {
             List<Entry> chartData = new ArrayList<>();
             int index = numberOfDays;
             for (int i = 1; i <= numberOfDays; i++) {
                 try {
-                    String query = "SELECT SUM(" + PRICE + ") FROM " + TABLE_TRANSACTION + " JOIN " + TABLE_PRODUCT + " ON " + COL_ID + " = " + PROD_ID + " WHERE " + COL_CATEGORY + " = " + "'" + category + "' AND " + DATE_TIME_STAMP + " BETWEEN datetime('now', '-" + (index) + " Day') AND datetime('now','-" + (index - 1) + " Day')";
+                    if(isProfit) {
+                        query = "SELECT SUM(" + PRICE + ") FROM " + TABLE_TRANSACTION + " JOIN " + TABLE_PRODUCT + " ON " + COL_ID + " = " + PROD_ID + " WHERE " + COL_CATEGORY + " = " + "'" + category + "' AND " + DATE_TIME_STAMP + " BETWEEN datetime('now', '-" + (index) + " Day') AND datetime('now','-" + (index - 1) + " Day')";
+                    }else{
+                        query = "SELECT SUM(" + QUANTITY + ") FROM " + TABLE_TRANSACTION + " JOIN " + TABLE_PRODUCT + " ON " + COL_ID + " = " + PROD_ID + " WHERE " + COL_CATEGORY + " = " + "'" + category + "' AND " + DATE_TIME_STAMP + " BETWEEN datetime('now', '-" + (index) + " Day') AND datetime('now','-" + (index - 1) + " Day')";
+                    }
                     Cursor cursor = database.rawQuery(query, null);
                     cursor.moveToFirst();
                     chartData.add(new Entry((float) i-1, cursor.getFloat(0)));
@@ -293,8 +298,9 @@ public class ProductDataSource{
 //            }
             SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
             Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DATE, -(index));
             for(int i = 0; i < index; i++){
-                cal.add(Calendar.DATE, -i);
+                cal.add(Calendar.DATE, 1);
                 Date date = cal.getTime();
                 sqlDates.add(dateFormat.format(date));
             }
