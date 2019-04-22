@@ -7,25 +7,20 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.format.DateFormat;
 import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
 
-import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
+
 
 import static gmu.rqr.square_wrapper_app.ProductDBHelper.COL_CATEGORY;
 import static gmu.rqr.square_wrapper_app.ProductDBHelper.COL_ID;
@@ -193,13 +188,15 @@ public class ProductDataSource{
         }
     }
 
-    public List<PieEntry> getPieChartData(){
+    public List<PieEntry> getPieChartData(Calendar startDate, Calendar endDate){
         List<PieEntry> chartData = new ArrayList<PieEntry>();
+        String startDateStr = DateFormat.format("yyyy-MM-dd 00:00:00", startDate.getTimeInMillis()).toString();
+        String endDateStr = DateFormat.format("yyyy-MM-dd 23:59:59", endDate.getTimeInMillis()).toString();
         String[] categories = {"Poultry", "Pork", "Beef", "Other"};
         for(String category : categories) {
             double categoryRevenue = 0.0;
             try {
-                String query = "SELECT SUM(" + PRICE + ") FROM " + TABLE_TRANSACTION + " JOIN " + TABLE_PRODUCT + " ON " + COL_ID + " = " + PROD_ID + " WHERE " + COL_CATEGORY + " = " + "'" + category + "'";
+                String query = "SELECT SUM(" + PRICE + ") FROM " + TABLE_TRANSACTION + " JOIN " + TABLE_PRODUCT + " ON " + COL_ID + " = " + PROD_ID + " WHERE " + COL_CATEGORY + " = " + "'" + category + "' AND " + DATE_TIME_STAMP +" BETWEEN '" + startDateStr + "' AND '" + endDateStr + "'";
                 Cursor cursor = database.rawQuery(query, null);
                 cursor.moveToFirst();
                 categoryRevenue = cursor.getDouble(0);
@@ -212,62 +209,38 @@ public class ProductDataSource{
         return chartData;
     }
 
-
-//    public List<BarEntry> getBarChartData(Integer numberOfDays) {
-//        List<BarEntry> chartData = new ArrayList<BarEntry>();
-//        Integer index = numberOfDays;
-//        for(Integer i = 1; i <= numberOfDays; i++) {
-//            try {
-//                String query = "SELECT SUM(" + PRICE + ") FROM " + TABLE_TRANSACTION + " WHERE " + DATE_TIME_STAMP + " BETWEEN datetime('now', '-" + (index) + " Day') AND datetime('now','-" + (index-1) + " Day')";
-//                Log.d("Check", "Query is " + query);
-//                Cursor cursor = database.rawQuery(query, null);
-//                cursor.moveToFirst();
-//                chartData.add(new BarEntry((float)i, cursor.getFloat(0)));
-//            } catch (Exception e) {
-//                //Error case
-//            }
-//            index--;
-//        }
-//        return chartData;
-//    }
-
-//    public List<Entry> getLineChartData(Integer numberOfDays){
-//        List<Entry> chartData = new ArrayList<>();
-//        Integer index = numberOfDays;
-//        for(Integer i = 1; i <= numberOfDays; i++) {
-//            try {
-//                String query = "SELECT SUM(" + PRICE + ") FROM " + TABLE_TRANSACTION + " WHERE " + DATE_TIME_STAMP + " BETWEEN datetime('now', '-" + (index) + " Day') AND datetime('now','-" + (index-1) + " Day')";
-//                Log.d("Check", "Query is " + query);
-//                Cursor cursor = database.rawQuery(query, null);
-//                cursor.moveToFirst();
-//                chartData.add(new Entry((float)i, cursor.getFloat(0)));
-//            } catch (Exception e) {
-//                //Error case
-//            }
-//            index--;
-//        }
-//        return chartData;
-//    }
-
-
-    public List<ILineDataSet> getCategoryLineChartData(Context context, int numberOfDays){
+    public List<ILineDataSet> getCategoryLineChartData(Context context, Calendar startDate, Calendar endDate, boolean isProfit){
         List<ILineDataSet> dataSets = new ArrayList<ILineDataSet>();
         String[] categories = {"Poultry", "Pork", "Beef", "Other"};
         int[] graph_colors = new int[] {R.color.graph_red, R.color.graph_blue, R.color.graph_yellow, R.color.graph_green};
         int colorIndex = 0;
+        String query;
         for(String category : categories) {
             List<Entry> chartData = new ArrayList<>();
-            int index = numberOfDays;
-            for (int i = 1; i <= numberOfDays; i++) {
+            int entryIndex = 0;
+            //Start from start date and working forwards until end date
+            Calendar targetDate = Calendar.getInstance(startDate.getTimeZone());
+            targetDate.setTime(startDate.getTime());
+            //Following is used to prevent non-updated end date from impacting same day reporting (e.g. 10:42:41 < 10:41:59 causes chart to drop today's data)
+            targetDate.add(Calendar.HOUR_OF_DAY, -1);
+            while(targetDate.getTime().before(endDate.getTime())){
+                String startDateStr = DateFormat.format("yyyy-MM-dd 00:00:00", targetDate.getTimeInMillis()).toString();
+                String endDateStr = DateFormat.format("yyyy-MM-dd 23:59:59", targetDate.getTimeInMillis()).toString();
                 try {
-                    String query = "SELECT SUM(" + PRICE + ") FROM " + TABLE_TRANSACTION + " JOIN " + TABLE_PRODUCT + " ON " + COL_ID + " = " + PROD_ID + " WHERE " + COL_CATEGORY + " = " + "'" + category + "' AND " + DATE_TIME_STAMP + " BETWEEN datetime('now', '-" + (index) + " Day') AND datetime('now','-" + (index - 1) + " Day')";
+                    if(isProfit) {
+                        query = "SELECT SUM(" + PRICE + ") FROM " + TABLE_TRANSACTION + " JOIN " + TABLE_PRODUCT + " ON " + COL_ID + " = " + PROD_ID + " WHERE " + COL_CATEGORY + " = " + "'" + category + "' AND " + DATE_TIME_STAMP + " BETWEEN '" + startDateStr + "' AND '" + endDateStr + "'";
+                    }
+                    else{
+                        query = "SELECT SUM(" + QUANTITY + ") FROM " + TABLE_TRANSACTION + " JOIN " + TABLE_PRODUCT + " ON " + COL_ID + " = " + PROD_ID + " WHERE " + COL_CATEGORY + " = " + "'" + category + "' AND " + DATE_TIME_STAMP + " BETWEEN '" + startDateStr + "' AND '" + endDateStr + "'";
+                    }
                     Cursor cursor = database.rawQuery(query, null);
                     cursor.moveToFirst();
-                    chartData.add(new Entry((float) i-1, cursor.getFloat(0)));
+                    chartData.add(new Entry((float) entryIndex, cursor.getFloat(0)));
                 } catch (Exception e) {
                     //Error case
                 }
-                index--;
+                entryIndex++;
+                targetDate.add(Calendar.DAY_OF_MONTH,1);
             }
             LineDataSet dataSet = new LineDataSet(chartData, category);
             dataSet.setColor(ContextCompat.getColor(context, graph_colors[colorIndex]));
@@ -277,28 +250,21 @@ public class ProductDataSource{
         return dataSets;
     }
 
-    public List<String> getDates(Context context, int numberOfDays){
+
+
+    public List<String> getDates(Calendar startDate, Calendar endDate){
         List<String> sqlDates = new ArrayList<>();
-        Integer index = numberOfDays;
-
         try {
-//            Sql not receiving correct dates from db that match the number of entries from getCategoryLineChartData
-
-//            String query = "SELECT " + DATE_TIME_STAMP + " FROM " + TABLE_TRANSACTION + " WHERE " + DATE_TIME_STAMP + " BETWEEN datetime('now') AND datetime('now','-" + (numberOfDays - 1) + " days')";
-//            Log.d("Check", "Query is " + query);
-//            Cursor cursor = database.rawQuery(query, null);
-//            while(cursor.moveToNext()) {
-//                String date = cursor.getString(0);
-//                sqlDates.add(date);
-//            }
-            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-            Calendar cal = Calendar.getInstance();
-            for(int i = 0; i < index; i++){
-                cal.add(Calendar.DATE, -i);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy");
+            Calendar cal = Calendar.getInstance(startDate.getTimeZone());
+            cal.setTime(startDate.getTime());
+            //Following is used to prevent non-updated end date from impacting same day reporting (e.g. 10:42:41 < 10:41:59 causes chart to drop today's data)
+            cal.add(Calendar.HOUR_OF_DAY, -1);
+            while(cal.getTime().before(endDate.getTime())){
                 Date date = cal.getTime();
                 sqlDates.add(dateFormat.format(date));
+                cal.add(Calendar.DATE, 1);
             }
-
         } catch (Exception e) {
             //Error case
         }
