@@ -3,6 +3,7 @@
     package="gmu.rqr.square_wrapper_app">
     <!-- This is needed to scan QR codes, not a requirement for Reader SDK. -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
@@ -15,7 +16,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".DateRangeDialog"></activity>
+        <activity android:name=".DateRangeDialog" />
         <activity
             android:name=".GraphActivity"
             android:label="@string/title_activity_graph"

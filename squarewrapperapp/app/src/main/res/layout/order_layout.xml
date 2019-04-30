@@ -25,6 +25,7 @@
         android:layout_alignParentBottom="true"
         android:background="@color/system_transparent"
         >
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -32,7 +33,6 @@
             android:id="@+id/cartBtn"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_marginStart="20dp"
             />
 
         <Button
@@ -41,7 +41,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:layout_marginEnd="20dp"
             android:text="ADD NEW PRODUCT" />
 
         <Button
@@ -52,8 +51,14 @@
             android:layout_toRightOf="@+id/addBtn"
             />
 
-
-
+        <Button
+            android:id="@+id/backupBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/chartBtn"
+            android:text="Backup"
+            android:textColor="@color/dark_blue"
+            />
 
 
     </RelativeLayout>

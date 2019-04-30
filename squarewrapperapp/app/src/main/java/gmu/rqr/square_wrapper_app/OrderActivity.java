@@ -39,6 +39,7 @@ public class OrderActivity  extends AppCompatActivity implements BuyDialog.SaveQ
         initAddNewProductButton();
         initCartButton();
         initChartButton();
+        initBackupButton();
 
 
         //Initialize DataSource used to access DB
@@ -231,6 +232,19 @@ public class OrderActivity  extends AppCompatActivity implements BuyDialog.SaveQ
                 Intent intent = new Intent(OrderActivity.this, GraphActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
+            }
+        });
+    }
+
+    private void  initBackupButton(){
+        Button backupButton = (Button) findViewById(R.id.backupBtn);
+        backupButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ds.open();
+                ds.transactionBackup();
+                ds.close();
+                Toast.makeText(OrderActivity.this, "Transactions backed up to SD card", Toast.LENGTH_SHORT).show();
             }
         });
     }

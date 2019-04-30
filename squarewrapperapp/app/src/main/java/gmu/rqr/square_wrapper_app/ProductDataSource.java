@@ -5,16 +5,22 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -32,6 +38,7 @@ import static gmu.rqr.square_wrapper_app.ProductDBHelper.PROD_ID;
 import static gmu.rqr.square_wrapper_app.ProductDBHelper.QUANTITY;
 import static gmu.rqr.square_wrapper_app.ProductDBHelper.TABLE_PRODUCT;
 import static gmu.rqr.square_wrapper_app.ProductDBHelper.TABLE_TRANSACTION;
+import static gmu.rqr.square_wrapper_app.ProductDBHelper.TRANS_ID;
 
 //Class used to manipulate database once it has been created.
 // ***This class has insert and update methods to manipulate database. Just need to add the code to use them
@@ -168,7 +175,6 @@ public class ProductDataSource{
     }
 
     public void logTransaction (ArrayList<CheckoutProduct> cart){
-        //long transTime = System.currentTimeMillis();
         for(CheckoutProduct checkoutItem : cart){
             String query = "SELECT * FROM " + TABLE_PRODUCT + " WHERE " + COL_NAME + " = " + "'" + checkoutItem.getProductName() + "'";
             Cursor cursor = database.rawQuery(query, null);
@@ -178,12 +184,11 @@ public class ProductDataSource{
                 initialValues.put(PROD_ID, pid);
                 initialValues.put(QUANTITY, checkoutItem.getProductWeight());
                 initialValues.put(PRICE, checkoutItem.getProductPrice()*checkoutItem.getProductWeight());
-                //initialValues.put(DATE_TIME_STAMP, transTime);
                 database.insert(TABLE_TRANSACTION, null, initialValues);
                 cursor.close();
             }
             else{
-                Log.d("wtf", "Query didn't work");
+                Log.d("Critical", "Query didn't work");
             }
         }
     }
@@ -272,6 +277,57 @@ public class ProductDataSource{
         return sqlDates;
     }
 
+    public boolean transactionBackup(){
+        boolean returnValue = false;
+        if(!Environment.getExternalStorageState().equals((Environment.MEDIA_MOUNTED))){
+            Log.d("Error", "Couldn't perform backup due to no SD card mounted");
+        }
+        else {
+            String dir = "";
+            dir = Environment.getExternalStorageDirectory() + File.separator + "Transaction_backup";
+            File path = new File(dir);
+            if(!path.exists()){
+                path.mkdirs();
+            }
+            String csvHeader;
+            String csvRow;
+            Date todaysDate = new Date();
+            SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yy_kk-mm-ss");
+            String formatDate = formatter.format(todaysDate);
+            String filename = "Trans_Log_" + formatDate + ".csv";
+            File outfile = new File(dir, filename);
+            csvHeader = "Transaction ID,Product Name, Product Category,Unit Price,Quantity,Item Total, Date Time Stamp\n";
+            try {
+                FileWriter fileWriter = new FileWriter(outfile);
+                BufferedWriter out = new BufferedWriter(fileWriter);
+                String query = "SELECT " + TRANS_ID + "," + COL_NAME + "," + COL_CATEGORY + "," + COL_PRICE + "," + QUANTITY + "," + PRICE + "," + DATE_TIME_STAMP + " FROM " + TABLE_TRANSACTION + " LEFT OUTER JOIN " + TABLE_PRODUCT + " ON " + COL_ID + " = " + PROD_ID;
+                Cursor cursor = database.rawQuery(query, null);
+                if (cursor != null) {
+                    out.write(csvHeader);
+                    cursor.moveToFirst();
+                    while (!cursor.isAfterLast()) {
+                        csvRow = Integer.toString(cursor.getInt(0)) + ",";
+                        csvRow += cursor.getString(1) + ",";
+                        csvRow += cursor.getString(2) + ",";
+                        csvRow += Double.toString(cursor.getDouble(3)) + ",";
+                        csvRow += Double.toString(cursor.getDouble(4)) + ",";
+                        csvRow += Double.toString(cursor.getDouble(5)) + ",";
+                        csvRow += cursor.getString(6) + "\n";
+                        out.write(csvRow);
+                        cursor.moveToNext();
+                    }
+                    cursor.close();
+                }
+                out.close();
+                returnValue = true;
+            } catch (IOException e) {
+                returnValue = false;
+                Log.d("Critical", e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        return returnValue;
+    }
 
 
 
